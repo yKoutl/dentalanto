@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Upload, Camera, X, RefreshCw, AlertCircle, FileCheck, BookOpen } from 'lucide-react';
+import { Upload, Camera, X, RefreshCw, AlertCircle, FileCheck, BookOpen, Layers } from 'lucide-react';
 
 interface UploadSectionProps {
   onScanImage: (base64: string, mimeType: string) => Promise<void>;
@@ -18,6 +18,7 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
   const [mimeType, setMimeType] = useState<string>('image/jpeg');
   const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [progressPercent, setProgressPercent] = useState<number>(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -28,6 +29,28 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
       stopCamera();
     };
   }, []);
+
+  // Animación suave de la barra de progreso mientras escanea
+  useEffect(() => {
+    let interval: any = null;
+    if (isScanning) {
+      setProgressPercent(15);
+      interval = setInterval(() => {
+        setProgressPercent((prev) => {
+          if (prev < 40) return prev + 8;
+          if (prev < 75) return prev + 5;
+          if (prev < 92) return prev + 2;
+          return prev;
+        });
+      }, 300);
+    } else {
+      setProgressPercent(0);
+      if (interval) clearInterval(interval);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isScanning]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -186,66 +209,105 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
               />
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row items-center gap-5 bg-purple-50/40 border border-purple-100 rounded-2xl p-4">
-              <div className="relative group shrink-0 w-full md:w-56 h-40 bg-slate-200 rounded-xl overflow-hidden border border-purple-200 flex items-center justify-center shadow-xs">
-                <img
-                  src={selectedImage}
-                  alt="Cuaderno capturado"
-                  className="w-full h-full object-cover"
-                />
-                <button
-                  onClick={() => setSelectedImage(null)}
-                  disabled={isScanning}
-                  className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/70 hover:bg-rose-600 text-white transition cursor-pointer"
-                  title="Cambiar foto"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+            <div className="space-y-4">
+              <div className="flex flex-col md:flex-row items-center gap-5 bg-purple-50/40 border border-purple-100 rounded-2xl p-4">
+                <div className="relative group shrink-0 w-full md:w-56 h-40 bg-slate-200 rounded-xl overflow-hidden border border-purple-200 flex items-center justify-center shadow-xs">
+                  <img
+                    src={selectedImage}
+                    alt="Cuaderno capturado"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    onClick={() => setSelectedImage(null)}
+                    disabled={isScanning}
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/70 hover:bg-rose-600 text-white transition cursor-pointer"
+                    title="Cambiar foto"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex-1 w-full flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                        Imagen cargada
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium text-slate-700 mt-1.5 leading-relaxed">
+                      El sistema transcribirá automáticamente las filas, columnas, doctoras, pacientes, montos y la columna de <b>Observaciones</b>.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 mt-4">
+                    <button
+                      onClick={handleStartScan}
+                      disabled={isScanning}
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-700 to-pink-600 hover:from-purple-800 hover:to-pink-700 text-white text-sm font-bold shadow-md shadow-purple-700/25 active:scale-95 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {isScanning ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                          <span>Procesando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <BookOpen className="w-4 h-4" />
+                          <span>Procesar y Digitalizar Cuaderno</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setSelectedImage(null);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                      }}
+                      disabled={isScanning}
+                      className="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-100/50 rounded-xl transition cursor-pointer"
+                    >
+                      Elegir otra imagen
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex-1 w-full flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
-                      Imagen cargada
+              {/* Barra de Progreso Activa durante el Escaneo */}
+              {isScanning && (
+                <div className="p-4 sm:p-5 bg-gradient-to-r from-purple-50 via-white to-pink-50 border-2 border-purple-200 rounded-2xl shadow-sm animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center animate-spin shrink-0">
+                        <RefreshCw className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-bold text-purple-950 uppercase tracking-wider block">
+                          Digitalización en curso
+                        </span>
+                        <span className="text-xs sm:text-sm font-semibold text-slate-800">
+                          {scanProgress || 'Transcribiendo escritura manuscrita del cuaderno...'}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-xs font-black text-purple-900 bg-purple-100 px-2.5 py-1 rounded-lg">
+                      {progressPercent}%
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-slate-700 mt-1.5 leading-relaxed">
-                    El sistema transcribirá automáticamente las filas, columnas, doctoras, pacientes, montos y la columna de <b>Observaciones</b>.
-                  </p>
-                </div>
 
-                <div className="flex flex-wrap items-center gap-3 mt-4">
-                  <button
-                    onClick={handleStartScan}
-                    disabled={isScanning}
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-700 to-pink-600 hover:from-purple-800 hover:to-pink-700 text-white text-sm font-bold shadow-md shadow-purple-700/25 active:scale-95 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {isScanning ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                        <span>{scanProgress || 'Procesando cuaderno...'}</span>
-                      </>
-                    ) : (
-                      <>
-                        <BookOpen className="w-4 h-4" />
-                        <span>Procesar y Digitalizar Cuaderno</span>
-                      </>
-                    )}
-                  </button>
+                  {/* Barra de progreso */}
+                  <div className="w-full h-3 bg-purple-100/70 rounded-full overflow-hidden p-0.5 border border-purple-200/80">
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-700 via-fuchsia-600 to-pink-500 rounded-full transition-all duration-300 shadow-xs"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
 
-                  <button
-                    onClick={() => {
-                      setSelectedImage(null);
-                      if (fileInputRef.current) fileInputRef.current.value = '';
-                    }}
-                    disabled={isScanning}
-                    className="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-100/50 rounded-xl transition cursor-pointer"
-                  >
-                    Elegir otra imagen
-                  </button>
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2 font-medium">
+                    <span>Reconociendo columnas y pacientes</span>
+                    <span>Consolidando gastos y caja</span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
