@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
+import { Login } from './components/Login';
 import { UploadSection } from './components/UploadSection';
 import { AtencionesTable } from './components/AtencionesTable';
 import { GastosTable } from './components/GastosTable';
@@ -11,6 +12,10 @@ import { SAMPLE_ATENCIONES, SAMPLE_GASTOS } from './data/sampleData';
 import { Users, Receipt, Wallet } from 'lucide-react';
 
 export function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('chaski_dental_auth') === 'true';
+  });
+
   const [atenciones, setAtenciones] = useState<AtencionItem[]>(SAMPLE_ATENCIONES);
   const [gastos, setGastos] = useState<GastoItem[]>(SAMPLE_GASTOS);
   const [totalGastosDeclarado, setTotalGastosDeclarado] = useState<number | undefined>(900);
@@ -21,6 +26,11 @@ export function App() {
   const [scanProgress, setScanProgress] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem('chaski_dental_auth');
+    setIsAuthenticated(false);
+  };
 
   const cuadre: CuadreCaja = useMemo(() => {
     const totalIngresosEfectivo = atenciones.reduce((acc, curr) => acc + (Number(curr.efectivo) || 0), 0);
@@ -97,11 +107,17 @@ export function App() {
     setSuccessMessage('Reporte PDF formal generado con éxito.');
   };
 
+  // Si no ha iniciado sesión, mostrar pantalla de bloqueo / login
+  if (!isAuthenticated) {
+    return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50/80 flex flex-col">
       <Navbar
         onExportExcel={handleExportExcel}
         onExportPdf={handleExportPdf}
+        onLogout={handleLogout}
         hasData={atenciones.length > 0 || gastos.length > 0}
         totalAtenciones={atenciones.length}
         totalGastos={gastos.length}

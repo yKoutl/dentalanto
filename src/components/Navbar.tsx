@@ -1,9 +1,10 @@
 import React from 'react';
-import { FileSpreadsheet, FileText, ClipboardList } from 'lucide-react';
+import { FileSpreadsheet, FileText, ClipboardList, LogOut } from 'lucide-react';
 
 interface NavbarProps {
   onExportExcel: () => void;
   onExportPdf: () => void;
+  onLogout: () => void;
   hasData: boolean;
   totalAtenciones: number;
   totalGastos: number;
@@ -12,6 +13,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   onExportExcel,
   onExportPdf,
+  onLogout,
   hasData,
   totalAtenciones,
   totalGastos
@@ -47,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onExportExcel}
             disabled={!hasData}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-xs ${
+            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all shadow-xs ${
               hasData
                 ? 'bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white shadow-purple-700/20 active:scale-95 cursor-pointer'
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
@@ -55,13 +57,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Descargar en formato Excel (.xlsx)"
           >
             <FileSpreadsheet className="w-4 h-4 text-purple-200" />
-            <span>Exportar Excel</span>
+            <span>Excel</span>
           </button>
 
           <button
             onClick={onExportPdf}
             disabled={!hasData}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-xs ${
+            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all shadow-xs ${
               hasData
                 ? 'bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-700 hover:to-pink-700 text-white shadow-pink-600/20 active:scale-95 cursor-pointer'
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
@@ -69,7 +71,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Descargar en formato PDF formal"
           >
             <FileText className="w-4 h-4 text-pink-200" />
-            <span>Exportar PDF</span>
+            <span>PDF</span>
+          </button>
+
+          <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
+
+          <button
+            onClick={onLogout}
+            className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+            title="Cerrar sesión"
+          >
+            <LogOut className="w-4 h-4" />
           </button>
         </div>
       </div>
