@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, FileSpreadsheet, FileText, Camera } from 'lucide-react';
+import { FileSpreadsheet, FileText, ClipboardList } from 'lucide-react';
 
 interface NavbarProps {
   onExportExcel: () => void;
@@ -17,32 +17,29 @@ export const Navbar: React.FC<NavbarProps> = ({
   totalGastos
 }) => {
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <header className="bg-white border-b border-purple-100 sticky top-0 z-30 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-cyan-600/20">
-            <Sparkles className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 via-fuchsia-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-purple-600/25">
+            <ClipboardList className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold text-slate-900 tracking-tight">
-                Chaski Dental <span className="text-cyan-600 font-semibold text-sm">| Cuaderno Digital</span>
+                Chaski Dental <span className="text-purple-700 font-semibold text-sm">| Control Clínico y Caja</span>
               </h1>
-              <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">
-                IA Multimodal
-              </span>
             </div>
             <p className="text-xs text-slate-500">
-              Digitalización inteligente de cuadernos odontológicos a Excel y PDF
+              Digitalización y gestión de atenciones, pacientes y gastos diarios
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5">
           {hasData && (
-            <div className="hidden md:flex items-center gap-2 mr-2 text-xs text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+            <div className="hidden sm:flex items-center gap-2 mr-2 text-xs text-purple-900 bg-purple-50/80 px-3 py-1.5 rounded-lg border border-purple-200">
               <span><b>{totalAtenciones}</b> atenciones</span>
-              <span className="text-slate-300">•</span>
+              <span className="text-purple-300">•</span>
               <span><b>{totalGastos}</b> gastos</span>
             </div>
           )}
@@ -50,28 +47,28 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onExportExcel}
             disabled={!hasData}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all shadow-xs ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-xs ${
               hasData
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20 active:scale-95 cursor-pointer'
+                ? 'bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white shadow-purple-700/20 active:scale-95 cursor-pointer'
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
             }`}
             title="Descargar en formato Excel (.xlsx)"
           >
-            <FileSpreadsheet className="w-4 h-4" />
+            <FileSpreadsheet className="w-4 h-4 text-purple-200" />
             <span>Exportar Excel</span>
           </button>
 
           <button
             onClick={onExportPdf}
             disabled={!hasData}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all shadow-xs ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-xs ${
               hasData
-                ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20 active:scale-95 cursor-pointer'
+                ? 'bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-700 hover:to-pink-700 text-white shadow-pink-600/20 active:scale-95 cursor-pointer'
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
             }`}
             title="Descargar en formato PDF formal"
           >
-            <FileText className="w-4 h-4" />
+            <FileText className="w-4 h-4 text-pink-200" />
             <span>Exportar PDF</span>
           </button>
         </div>

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Upload, Camera, Image as ImageIcon, Sparkles, X, RefreshCw, AlertCircle } from 'lucide-react';
+import { Upload, Camera, X, RefreshCw, AlertCircle, FileCheck, BookOpen } from 'lucide-react';
 
 interface UploadSectionProps {
   onScanImage: (base64: string, mimeType: string) => Promise<void>;
@@ -23,7 +23,6 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Detener la cámara cuando se desmonte o desactive
   useEffect(() => {
     return () => {
       stopCamera();
@@ -90,38 +89,38 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 md:p-6 mb-6">
+    <div className="bg-white rounded-2xl border border-purple-100 shadow-xs p-4 sm:p-6 mb-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
           <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-            <Camera className="w-5 h-5 text-cyan-600" />
-            Capturar o Subir Foto del Cuaderno
+            <BookOpen className="w-5 h-5 text-purple-700" />
+            <span>Digitalizar Hoja de Cuaderno</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Puedes tomar foto de la página izquierda (atenciones), la derecha (gastos/bancos) o ambas abiertas
+            Toma una foto clara a la página de atenciones, a la de gastos o a ambas páginas abiertas
           </p>
         </div>
 
         <button
           onClick={onLoadSampleData}
           disabled={isScanning}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-cyan-700 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200/80 px-3 py-1.5 rounded-lg transition-colors cursor-pointer self-start sm:self-auto"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer self-start sm:self-auto active:scale-95"
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          Cargar Datos de Ejemplo (de la foto del cuaderno)
+          <FileCheck className="w-3.5 h-3.5 text-purple-600" />
+          <span>Cargar Datos de Muestra (del Cuaderno)</span>
         </button>
       </div>
 
       {cameraError && (
-        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
           <span>{cameraError}</span>
         </div>
       )}
 
       {/* Modo Cámara en Vivo */}
       {isCameraActive ? (
-        <div className="relative rounded-xl overflow-hidden bg-black max-w-xl mx-auto aspect-4/3 flex flex-col justify-between p-4 shadow-inner">
+        <div className="relative rounded-2xl overflow-hidden bg-black max-w-xl mx-auto aspect-4/3 flex flex-col justify-between p-4 shadow-xl border-2 border-purple-400">
           <video
             ref={videoRef}
             autoPlay
@@ -142,40 +141,40 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
           <div className="relative z-10 flex justify-center pb-2">
             <button
               onClick={capturePhoto}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-white text-slate-900 font-bold shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer"
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer"
             >
-              <Camera className="w-5 h-5 text-cyan-600" />
-              Tomar Foto
+              <Camera className="w-5 h-5" />
+              <span>Tomar Foto</span>
             </button>
           </div>
         </div>
       ) : (
-        /* Selector de imagen / Vista previa */
+        /* Selector o Preview */
         <div>
           {!selectedImage ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={startCamera}
-                className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 hover:border-cyan-500 hover:bg-cyan-50/40 rounded-xl transition cursor-pointer group text-center"
+                className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-purple-200 hover:border-purple-500 hover:bg-purple-50/40 rounded-2xl transition cursor-pointer group text-center"
               >
-                <div className="w-12 h-12 rounded-full bg-cyan-100 text-cyan-700 flex items-center justify-center mb-2.5 group-hover:scale-110 transition">
+                <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center mb-2.5 group-hover:scale-110 transition shadow-xs">
                   <Camera className="w-6 h-6" />
                 </div>
-                <span className="text-sm font-semibold text-slate-700">Tomar foto con la cámara</span>
-                <span className="text-xs text-slate-400 mt-0.5">Usa la cámara de tu celular o webcam</span>
+                <span className="text-sm font-semibold text-slate-800">Tomar foto con la cámara</span>
+                <span className="text-xs text-slate-400 mt-0.5">Cámara de tu celular o tablet</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 hover:border-emerald-500 hover:bg-emerald-50/40 rounded-xl transition cursor-pointer group text-center"
+                className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-pink-200 hover:border-pink-500 hover:bg-pink-50/40 rounded-2xl transition cursor-pointer group text-center"
               >
-                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2.5 group-hover:scale-110 transition">
+                <div className="w-12 h-12 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center mb-2.5 group-hover:scale-110 transition shadow-xs">
                   <Upload className="w-6 h-6" />
                 </div>
-                <span className="text-sm font-semibold text-slate-700">Subir foto o escaneo</span>
-                <span className="text-xs text-slate-400 mt-0.5">JPG, PNG o WEBP desde tus archivos</span>
+                <span className="text-sm font-semibold text-slate-800">Subir foto o escaneo</span>
+                <span className="text-xs text-slate-400 mt-0.5">Archivos JPG, PNG o WEBP</span>
               </button>
 
               <input
@@ -187,8 +186,8 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
               />
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row items-center gap-5 bg-slate-50 border border-slate-200/80 rounded-xl p-4">
-              <div className="relative group shrink-0 w-full md:w-56 h-40 bg-slate-200 rounded-lg overflow-hidden border border-slate-300 flex items-center justify-center">
+            <div className="flex flex-col md:flex-row items-center gap-5 bg-purple-50/40 border border-purple-100 rounded-2xl p-4">
+              <div className="relative group shrink-0 w-full md:w-56 h-40 bg-slate-200 rounded-xl overflow-hidden border border-purple-200 flex items-center justify-center shadow-xs">
                 <img
                   src={selectedImage}
                   alt="Cuaderno capturado"
@@ -207,12 +206,12 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
               <div className="flex-1 w-full flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
-                      Foto lista para procesar
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                      Imagen cargada
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-slate-700 mt-1.5">
-                    Gemini Multimodal extraerá automáticamente las filas, columnas, doctoras, pacientes, montos y la columna <b>Observaciones</b>.
+                  <p className="text-sm font-medium text-slate-700 mt-1.5 leading-relaxed">
+                    El sistema transcribirá automáticamente las filas, columnas, doctoras, pacientes, montos y la columna de <b>Observaciones</b>.
                   </p>
                 </div>
 
@@ -220,17 +219,17 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
                   <button
                     onClick={handleStartScan}
                     disabled={isScanning}
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold shadow-md shadow-cyan-600/20 active:scale-95 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-700 to-pink-600 hover:from-purple-800 hover:to-pink-700 text-white text-sm font-bold shadow-md shadow-purple-700/25 active:scale-95 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {isScanning ? (
                       <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>{scanProgress || 'Procesando manuscrito...'}</span>
+                        <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                        <span>{scanProgress || 'Procesando cuaderno...'}</span>
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-4 h-4" />
-                        <span>Escanear y Extraer con IA</span>
+                        <BookOpen className="w-4 h-4" />
+                        <span>Procesar y Digitalizar Cuaderno</span>
                       </>
                     )}
                   </button>
@@ -241,7 +240,7 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
                       if (fileInputRef.current) fileInputRef.current.value = '';
                     }}
                     disabled={isScanning}
-                    className="px-3 py-2 text-xs text-slate-600 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition cursor-pointer"
+                    className="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-100/50 rounded-xl transition cursor-pointer"
                   >
                     Elegir otra imagen
                   </button>

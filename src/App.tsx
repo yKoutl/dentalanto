@@ -8,7 +8,7 @@ import { AtencionItem, GastoItem, CuadreCaja } from './types';
 import { scanDentalNotebookImage } from './services/geminiScanner';
 import { exportToExcel, exportToPdf } from './services/exportService';
 import { SAMPLE_ATENCIONES, SAMPLE_GASTOS } from './data/sampleData';
-import { Users, Receipt, Wallet, Sparkles } from 'lucide-react';
+import { Users, Receipt, Wallet } from 'lucide-react';
 
 export function App() {
   const [atenciones, setAtenciones] = useState<AtencionItem[]>(SAMPLE_ATENCIONES);
@@ -22,7 +22,6 @@ export function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Cálculos reactivos de Caja
   const cuadre: CuadreCaja = useMemo(() => {
     const totalIngresosEfectivo = atenciones.reduce((acc, curr) => acc + (Number(curr.efectivo) || 0), 0);
     const totalIngresosBanco = atenciones.reduce((acc, curr) => acc + (Number(curr.banco) || 0), 0);
@@ -47,7 +46,7 @@ export function App() {
     setIsScanning(true);
     setErrorMessage(null);
     setSuccessMessage(null);
-    setScanProgress('Iniciando conexión con Gemini...');
+    setScanProgress('Leyendo registros del cuaderno...');
 
     try {
       const result = await scanDentalNotebookImage(base64, mimeType, (msg) => {
@@ -67,13 +66,13 @@ export function App() {
         if (result.saldoCajaDeclarado !== undefined) {
           setSaldoCajaDeclarado(result.saldoCajaDeclarado);
         }
-        setSuccessMessage(`¡Digitalización exitosa! Se extrajeron ${result.atenciones.length} atenciones y ${result.gastos.length} gastos.`);
+        setSuccessMessage(`Se digitalizaron ${result.atenciones.length} atenciones y ${result.gastos.length} gastos correctamente.`);
       } else {
-        setErrorMessage('La IA no pudo reconocer tablas en la imagen. Intenta con una toma más cercana e iluminada.');
+        setErrorMessage('No se pudieron leer registros claros en la foto. Intenta con una toma más iluminada o cercana.');
       }
     } catch (err: any) {
       console.error(err);
-      setErrorMessage(err.message || 'Error al procesar la foto con IA.');
+      setErrorMessage(err.message || 'Error al procesar la fotografía.');
     } finally {
       setIsScanning(false);
       setScanProgress('');
@@ -90,16 +89,16 @@ export function App() {
 
   const handleExportExcel = () => {
     exportToExcel(atenciones, gastos, cuadre);
-    setSuccessMessage('Archivo Excel (.xlsx) generado y descargado con éxito.');
+    setSuccessMessage('Archivo Excel (.xlsx) generado con nuestro estilo de diseño.');
   };
 
   const handleExportPdf = () => {
     exportToPdf(atenciones, gastos, cuadre);
-    setSuccessMessage('Documento PDF generado y descargado con éxito.');
+    setSuccessMessage('Reporte PDF formal generado con éxito.');
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50/80 flex flex-col">
       <Navbar
         onExportExcel={handleExportExcel}
         onExportPdf={handleExportPdf}
@@ -111,19 +110,19 @@ export function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Notificaciones */}
         {errorMessage && (
-          <div className="mb-4 p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-sm flex items-center justify-between">
-            <span>{errorMessage}</span>
-            <button onClick={() => setErrorMessage(null)} className="font-bold ml-2">×</button>
+          <div className="mb-4 p-4 bg-rose-50 border border-rose-200 text-rose-900 rounded-xl text-sm flex items-center justify-between shadow-xs">
+            <span className="font-medium">{errorMessage}</span>
+            <button onClick={() => setErrorMessage(null)} className="font-bold ml-2 text-rose-700 hover:text-rose-900">×</button>
           </div>
         )}
         {successMessage && (
-          <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm flex items-center justify-between">
-            <span>{successMessage}</span>
-            <button onClick={() => setSuccessMessage(null)} className="font-bold ml-2">×</button>
+          <div className="mb-4 p-4 bg-purple-50 border border-purple-200 text-purple-900 rounded-xl text-sm flex items-center justify-between shadow-xs">
+            <span className="font-medium">{successMessage}</span>
+            <button onClick={() => setSuccessMessage(null)} className="font-bold ml-2 text-purple-700 hover:text-purple-900">×</button>
           </div>
         )}
 
-        {/* Sección de Captura / Carga */}
+        {/* Carga y Captura */}
         <UploadSection
           onScanImage={handleScanImage}
           isScanning={isScanning}
@@ -131,20 +130,20 @@ export function App() {
           onLoadSampleData={handleLoadSample}
         />
 
-        {/* Navegación por Pestañas */}
-        <div className="flex border-b border-slate-200 mb-6 gap-2 sm:gap-6 overflow-x-auto">
+        {/* Pestañas en Morado y Rosa */}
+        <div className="flex border-b border-purple-200/80 mb-6 gap-2 sm:gap-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('atenciones')}
-            className={`flex items-center gap-2 pb-3 px-2 text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center gap-2 pb-3.5 px-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'atenciones'
-                ? 'border-cyan-600 text-cyan-700'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                ? 'border-purple-700 text-purple-900'
+                : 'border-transparent text-slate-500 hover:text-purple-700'
             }`}
           >
             <Users className="w-4 h-4" />
             <span>Atenciones y Pacientes</span>
-            <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
-              activeTab === 'atenciones' ? 'bg-cyan-100 text-cyan-800' : 'bg-slate-100 text-slate-600'
+            <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+              activeTab === 'atenciones' ? 'bg-purple-100 text-purple-900 border border-purple-200' : 'bg-slate-100 text-slate-600'
             }`}>
               {atenciones.length}
             </span>
@@ -152,16 +151,16 @@ export function App() {
 
           <button
             onClick={() => setActiveTab('gastos')}
-            className={`flex items-center gap-2 pb-3 px-2 text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center gap-2 pb-3.5 px-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'gastos'
-                ? 'border-rose-600 text-rose-700'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                ? 'border-pink-600 text-pink-900'
+                : 'border-transparent text-slate-500 hover:text-pink-600'
             }`}
           >
             <Receipt className="w-4 h-4" />
             <span>Gastos Diarios</span>
-            <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
-              activeTab === 'gastos' ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-600'
+            <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+              activeTab === 'gastos' ? 'bg-pink-100 text-pink-900 border border-pink-200' : 'bg-slate-100 text-slate-600'
             }`}>
               {gastos.length}
             </span>
@@ -169,21 +168,21 @@ export function App() {
 
           <button
             onClick={() => setActiveTab('cuadre')}
-            className={`flex items-center gap-2 pb-3 px-2 text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center gap-2 pb-3.5 px-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'cuadre'
-                ? 'border-emerald-600 text-emerald-700'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                ? 'border-fuchsia-700 text-fuchsia-900'
+                : 'border-transparent text-slate-500 hover:text-fuchsia-700'
             }`}
           >
             <Wallet className="w-4 h-4" />
-            <span>Cuadre y Resumen de Caja</span>
-            <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
+            <span>Cuadre de Caja</span>
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-900 text-white font-bold">
               S/ {cuadre.saldoCajaEfectivo.toFixed(2)}
             </span>
           </button>
         </div>
 
-        {/* Contenido de la pestaña activa */}
+        {/* Vista activa */}
         {activeTab === 'atenciones' && (
           <AtencionesTable atenciones={atenciones} onChange={setAtenciones} />
         )}

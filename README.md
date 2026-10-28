@@ -16,3 +16,4 @@ Digitalizador inteligente de cuadernos odontológicos a Excel y PDF con IA Multi
 pnpm install
 pnpm dev
 ```
+
