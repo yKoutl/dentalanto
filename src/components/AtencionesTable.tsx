@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { AtencionItem } from '../types';
-import { Plus, Trash2, Search } from 'lucide-react';
+import { Plus, Trash2, Search, Edit3 } from 'lucide-react';
+import { EditAtencionModal } from './modals/EditAtencionModal';
+import { ConfirmDeleteModal } from './modals/ConfirmDeleteModal';
 
 interface AtencionesTableProps {
   atenciones: AtencionItem[];
@@ -9,18 +11,23 @@ interface AtencionesTableProps {
 
 export const AtencionesTable: React.FC<AtencionesTableProps> = ({ atenciones, onChange }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedAtencion, setSelectedAtencion] = useState<AtencionItem | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const handleCellChange = (id: string, field: keyof AtencionItem, value: any) => {
-    const updated = atenciones.map((item) => {
-      if (item.id === id) {
-        return {
-          ...item,
-          [field]: (field === 'efectivo' || field === 'banco' || field === 'montoDoctora') ? Number(value) || 0 : value
-        };
-      }
-      return item;
-    });
-    onChange(updated);
+  // Modal de confirmación para eliminar fila
+  const [itemToDelete, setItemToDelete] = useState<AtencionItem | null>(null);
+
+  const handleOpenEdit = (item: AtencionItem) => {
+    setSelectedAtencion(item);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveModal = (updated: AtencionItem) => {
+    onChange(atenciones.map((item) => (item.id === updated.id ? updated : item)));
+  };
+
+  const handleDeleteItem = (id: string) => {
+    onChange(atenciones.filter((item) => item.id !== id));
   };
 
   const handleAddRow = () => {
@@ -39,10 +46,7 @@ export const AtencionesTable: React.FC<AtencionesTableProps> = ({ atenciones, on
       observaciones: ''
     };
     onChange([...atenciones, newItem]);
-  };
-
-  const handleDeleteRow = (id: string) => {
-    onChange(atenciones.filter((item) => item.id !== id));
+    handleOpenEdit(newItem);
   };
 
   const filteredItems = atenciones.filter((item) => {
@@ -74,7 +78,7 @@ export const AtencionesTable: React.FC<AtencionesTableProps> = ({ atenciones, on
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Página izquierda del cuaderno: Fecha, Boleta, Doctora, Paciente, Tratamiento, Pagos y Observaciones
+            Haz clic en cualquier fila para abrir el panel de edición cómodo
           </p>
         </div>
 
@@ -115,7 +119,7 @@ export const AtencionesTable: React.FC<AtencionesTableProps> = ({ atenciones, on
               <th className="py-3 px-2.5 text-right w-28 bg-purple-950/80">Banco S/ (Medio)</th>
               <th className="py-3 px-2.5 w-32 bg-purple-950/60">Doctora / Comisión</th>
               <th className="py-3 px-3 min-w-[180px] bg-pink-900">Observaciones</th>
-              <th className="py-3 px-2 text-center w-10"></th>
+              <th className="py-3 px-2 text-center w-16">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-purple-100">
@@ -127,120 +131,69 @@ export const AtencionesTable: React.FC<AtencionesTableProps> = ({ atenciones, on
               </tr>
             ) : (
               filteredItems.map((item, index) => (
-                <tr key={item.id} className="hover:bg-purple-50/50 transition-colors group">
-                  <td className="py-2 px-2 text-center text-slate-400 font-medium">
+                <tr
+                  key={item.id}
+                  onClick={() => handleOpenEdit(item)}
+                  className="hover:bg-purple-50/60 transition-colors group cursor-pointer"
+                  title="Haz clic para editar en modal"
+                >
+                  <td className="py-2.5 px-2 text-center text-slate-400 font-medium">
                     {index + 1}
                   </td>
-                  <td className="py-1 px-1.5">
-                    <input
-                      type="text"
-                      value={item.fecha}
-                      onChange={(e) => handleCellChange(item.id, 'fecha', e.target.value)}
-                      className="w-full px-1.5 py-1 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-purple-500 focus:outline-none text-black font-semibold"
-                      placeholder="21/10"
-                    />
+                  <td className="py-2 px-1.5 font-semibold text-black">
+                    {item.fecha || '-'}
                   </td>
-                  <td className="py-1 px-1.5">
-                    <input
-                      type="text"
-                      value={item.boleta}
-                      onChange={(e) => handleCellChange(item.id, 'boleta', e.target.value)}
-                      className="w-full px-1.5 py-1 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-purple-500 focus:outline-none text-black font-medium"
-                      placeholder="600"
-                    />
+                  <td className="py-2 px-1.5 font-medium text-black">
+                    {item.boleta || '-'}
                   </td>
-                  <td className="py-1 px-1.5">
-                    <input
-                      type="text"
-                      value={item.doctora}
-                      onChange={(e) => handleCellChange(item.id, 'doctora', e.target.value)}
-                      className="w-full px-1.5 py-1 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-purple-500 focus:outline-none text-purple-900 font-bold"
-                      placeholder="Vanessa"
-                    />
+                  <td className="py-2 px-1.5 font-bold text-purple-900">
+                    {item.doctora || '-'}
                   </td>
-                  <td className="py-1 px-1.5">
-                    <input
-                      type="text"
-                      value={item.paciente}
-                      onChange={(e) => handleCellChange(item.id, 'paciente', e.target.value)}
-                      className="w-full px-1.5 py-1 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-purple-500 focus:outline-none text-black font-bold"
-                      placeholder="Nombre del paciente"
-                    />
+                  <td className="py-2 px-1.5 font-bold text-black">
+                    {item.paciente || '-'}
                   </td>
-                  <td className="py-1 px-1.5">
-                    <input
-                      type="text"
-                      value={item.tratamiento}
-                      onChange={(e) => handleCellChange(item.id, 'tratamiento', e.target.value)}
-                      className="w-full px-1.5 py-1 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-purple-500 focus:outline-none text-black"
-                      placeholder="Tratamiento realizado"
-                    />
+                  <td className="py-2 px-1.5 text-slate-800 font-medium">
+                    {item.tratamiento || '-'}
                   </td>
-                  <td className="py-1 px-1.5 bg-purple-50/30">
-                    <input
-                      type="number"
-                      step="any"
-                      value={item.efectivo === 0 ? '' : item.efectivo}
-                      onChange={(e) => handleCellChange(item.id, 'efectivo', e.target.value)}
-                      className="w-full px-1.5 py-1 rounded text-right bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-purple-500 focus:outline-none text-black font-extrabold"
-                      placeholder="0.00"
-                    />
+                  <td className="py-2 px-2.5 text-right bg-purple-50/30 text-black font-extrabold">
+                    {item.efectivo ? `S/ ${Number(item.efectivo).toFixed(2)}` : '-'}
                   </td>
-                  <td className="py-1 px-1.5 bg-fuchsia-50/30">
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        step="any"
-                        value={item.banco === 0 ? '' : item.banco}
-                        onChange={(e) => handleCellChange(item.id, 'banco', e.target.value)}
-                        className="w-16 px-1 py-1 rounded text-right bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-purple-500 focus:outline-none text-black font-extrabold"
-                        placeholder="0.00"
-                      />
-                      <input
-                        type="text"
-                        value={item.bancoTipo}
-                        onChange={(e) => handleCellChange(item.id, 'bancoTipo', e.target.value)}
-                        className="w-14 px-1 py-1 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-purple-500 focus:outline-none text-purple-700 font-bold uppercase text-[10px]"
-                        placeholder="BCP/Yape"
-                      />
+                  <td className="py-2 px-2.5 text-right bg-fuchsia-50/30 font-extrabold text-black">
+                    {item.banco ? `S/ ${Number(item.banco).toFixed(2)} ${item.bancoTipo ? `(${item.bancoTipo})` : ''}` : '-'}
+                  </td>
+                  <td className="py-2 px-2 bg-pink-50/20 text-purple-950 font-semibold">
+                    {item.doctoraAsignada ? (
+                      <span>
+                        {item.doctoraAsignada}: <b className="text-pink-700">S/ {item.montoDoctora}</b>
+                      </span>
+                    ) : '-'}
+                  </td>
+                  <td className="py-2 px-3 bg-pink-50/40 text-black font-medium">
+                    {item.observaciones ? (
+                      <span className="inline-block px-2 py-0.5 rounded-md bg-white border border-pink-200 text-pink-900 text-[11px] font-semibold">
+                        {item.observaciones}
+                      </span>
+                    ) : (
+                      <span className="text-slate-300">-</span>
+                    )}
+                  </td>
+                  <td className="py-2 px-2 text-center" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={() => handleOpenEdit(item)}
+                        className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-100 rounded-lg transition cursor-pointer"
+                        title="Modificar en modal"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => setItemToDelete(item)}
+                        className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                        title="Eliminar registro"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                  </td>
-                  <td className="py-1 px-1.5 bg-pink-50/20">
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="text"
-                        value={item.doctoraAsignada}
-                        onChange={(e) => handleCellChange(item.id, 'doctoraAsignada', e.target.value)}
-                        className="w-16 px-1 py-1 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-purple-500 focus:outline-none text-purple-900 font-semibold text-[11px]"
-                        placeholder="Doctora"
-                      />
-                      <input
-                        type="number"
-                        step="any"
-                        value={item.montoDoctora === 0 ? '' : item.montoDoctora}
-                        onChange={(e) => handleCellChange(item.id, 'montoDoctora', e.target.value)}
-                        className="w-12 px-1 py-1 rounded text-right bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-purple-500 focus:outline-none text-pink-700 font-bold"
-                        placeholder="0"
-                      />
-                    </div>
-                  </td>
-                  <td className="py-1 px-2 bg-pink-50/40">
-                    <input
-                      type="text"
-                      value={item.observaciones}
-                      onChange={(e) => handleCellChange(item.id, 'observaciones', e.target.value)}
-                      className="w-full px-2 py-1 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-pink-500 focus:outline-none text-black font-medium"
-                      placeholder="Notas, cancelación, pieza..."
-                    />
-                  </td>
-                  <td className="py-1 px-1 text-center">
-                    <button
-                      onClick={() => handleDeleteRow(item.id)}
-                      className="p-1 text-slate-300 hover:text-rose-600 transition rounded hover:bg-rose-50 cursor-pointer"
-                      title="Eliminar fila"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
                   </td>
                 </tr>
               ))
@@ -267,6 +220,29 @@ export const AtencionesTable: React.FC<AtencionesTableProps> = ({ atenciones, on
           )}
         </table>
       </div>
+
+      {/* Modal de edición */}
+      <EditAtencionModal
+        isOpen={isEditModalOpen}
+        atencion={selectedAtencion}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveModal}
+        onDelete={handleDeleteItem}
+      />
+
+      {/* Modal de confirmación para eliminar desde la tabla */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(itemToDelete)}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={() => {
+          if (itemToDelete) {
+            handleDeleteItem(itemToDelete.id);
+            setItemToDelete(null);
+          }
+        }}
+        title="¿Eliminar atención médica?"
+        itemName={itemToDelete ? `Paciente: ${itemToDelete.paciente || 'Sin nombre'} (${itemToDelete.tratamiento || 'Sin tratamiento'})` : undefined}
+      />
     </div>
   );
 };

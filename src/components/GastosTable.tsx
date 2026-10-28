@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { GastoItem } from '../types';
-import { Plus, Trash2, Search, Receipt } from 'lucide-react';
+import { Plus, Trash2, Search, Receipt, Edit3 } from 'lucide-react';
+import { EditGastoModal } from './modals/EditGastoModal';
+import { ConfirmDeleteModal } from './modals/ConfirmDeleteModal';
 
 interface GastosTableProps {
   gastos: GastoItem[];
@@ -14,18 +16,23 @@ export const GastosTable: React.FC<GastosTableProps> = ({
   totalGastosDeclarado
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedGasto, setSelectedGasto] = useState<GastoItem | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const handleCellChange = (id: string, field: keyof GastoItem, value: any) => {
-    const updated = gastos.map((item) => {
-      if (item.id === id) {
-        return {
-          ...item,
-          [field]: field === 'monto' ? Number(value) || 0 : value
-        };
-      }
-      return item;
-    });
-    onChange(updated);
+  // Modal de confirmación para eliminar gasto
+  const [itemToDelete, setItemToDelete] = useState<GastoItem | null>(null);
+
+  const handleOpenEdit = (item: GastoItem) => {
+    setSelectedGasto(item);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveModal = (updated: GastoItem) => {
+    onChange(gastos.map((item) => (item.id === updated.id ? updated : item)));
+  };
+
+  const handleDeleteItem = (id: string) => {
+    onChange(gastos.filter((item) => item.id !== id));
   };
 
   const handleAddRow = () => {
@@ -37,10 +44,7 @@ export const GastosTable: React.FC<GastosTableProps> = ({
       observaciones: ''
     };
     onChange([...gastos, newItem]);
-  };
-
-  const handleDeleteRow = (id: string) => {
-    onChange(gastos.filter((item) => item.id !== id));
+    handleOpenEdit(newItem);
   };
 
   const filteredItems = gastos.filter((item) => {
@@ -69,7 +73,7 @@ export const GastosTable: React.FC<GastosTableProps> = ({
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Página derecha del cuaderno: Insumos dentales, técnico Jesús, volanteo, copias, etc.
+            Haz clic en cualquier fila para modificar el gasto en modal
           </p>
         </div>
 
@@ -105,7 +109,7 @@ export const GastosTable: React.FC<GastosTableProps> = ({
               <th className="py-3 px-3 w-32">Medio</th>
               <th className="py-3 px-3 text-right w-36 bg-pink-950">Monto S/</th>
               <th className="py-3 px-4 min-w-[240px]">Observaciones / Detalle del Gasto</th>
-              <th className="py-3 px-3 text-center w-12"></th>
+              <th className="py-3 px-3 text-center w-16">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-pink-100">
@@ -117,60 +121,46 @@ export const GastosTable: React.FC<GastosTableProps> = ({
               </tr>
             ) : (
               filteredItems.map((item, index) => (
-                <tr key={item.id} className="hover:bg-pink-50/50 transition-colors group">
+                <tr
+                  key={item.id}
+                  onClick={() => handleOpenEdit(item)}
+                  className="hover:bg-pink-50/60 transition-colors group cursor-pointer"
+                  title="Haz clic para editar en modal"
+                >
                   <td className="py-2.5 px-3 text-center text-slate-400 font-medium">
                     {index + 1}
                   </td>
-                  <td className="py-1 px-2">
-                    <input
-                      type="text"
-                      value={item.fecha}
-                      onChange={(e) => handleCellChange(item.id, 'fecha', e.target.value)}
-                      className="w-full px-2 py-1.5 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-pink-500 focus:outline-none text-black font-semibold"
-                      placeholder="21/10"
-                    />
+                  <td className="py-2 px-3 font-semibold text-black">
+                    {item.fecha || '-'}
                   </td>
-                  <td className="py-1 px-2">
-                    <select
-                      value={item.medio}
-                      onChange={(e) => handleCellChange(item.id, 'medio', e.target.value)}
-                      className="w-full px-2 py-1.5 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-pink-500 focus:outline-none text-black font-semibold cursor-pointer"
-                    >
-                      <option value="Efectivo">Efectivo</option>
-                      <option value="BCP">BCP</option>
-                      <option value="Interbank">Interbank</option>
-                      <option value="Yape">Yape</option>
-                      <option value="Plin">Plin</option>
-                      <option value="Otro">Otro</option>
-                    </select>
+                  <td className="py-2 px-3 font-semibold text-black">
+                    <span className="inline-block px-2 py-0.5 rounded-md bg-pink-50 text-pink-900 border border-pink-200 text-[11px] font-bold">
+                      {item.medio || 'Efectivo'}
+                    </span>
                   </td>
-                  <td className="py-1 px-2 bg-pink-50/30">
-                    <input
-                      type="number"
-                      step="any"
-                      value={item.monto === 0 ? '' : item.monto}
-                      onChange={(e) => handleCellChange(item.id, 'monto', e.target.value)}
-                      className="w-full px-2 py-1.5 rounded text-right bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-pink-500 focus:outline-none text-pink-700 font-extrabold"
-                      placeholder="0.00"
-                    />
+                  <td className="py-2 px-3 bg-pink-50/30 text-right text-pink-700 font-extrabold text-sm">
+                    S/ {Number(item.monto).toFixed(2)}
                   </td>
-                  <td className="py-1 px-3">
-                    <input
-                      type="text"
-                      value={item.observaciones}
-                      onChange={(e) => handleCellChange(item.id, 'observaciones', e.target.value)}
-                      className="w-full px-2 py-1.5 rounded bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-pink-500 focus:outline-none text-black font-semibold"
-                      placeholder="Ej. Papel toalla, Técnico Jesús x2, Anillos, Volanteo..."
-                    />
+                  <td className="py-2 px-4 text-black font-semibold">
+                    {item.observaciones || '-'}
                   </td>
-                  <td className="py-1 px-2 text-center">
-                    <button
-                      onClick={() => handleDeleteRow(item.id)}
-                      className="p-1 text-slate-300 hover:text-rose-600 transition rounded hover:bg-rose-50 cursor-pointer"
-                      title="Eliminar gasto"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                  <td className="py-2 px-3 text-center" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={() => handleOpenEdit(item)}
+                        className="p-1.5 text-pink-600 hover:text-pink-800 hover:bg-pink-100 rounded-lg transition cursor-pointer"
+                        title="Modificar en modal"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => setItemToDelete(item)}
+                        className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                        title="Eliminar gasto"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -197,6 +187,29 @@ export const GastosTable: React.FC<GastosTableProps> = ({
           )}
         </table>
       </div>
+
+      {/* Modal de edición de gasto */}
+      <EditGastoModal
+        isOpen={isEditModalOpen}
+        gasto={selectedGasto}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveModal}
+        onDelete={handleDeleteItem}
+      />
+
+      {/* Modal de confirmación para eliminar desde la tabla */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(itemToDelete)}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={() => {
+          if (itemToDelete) {
+            handleDeleteItem(itemToDelete.id);
+            setItemToDelete(null);
+          }
+        }}
+        title="¿Eliminar este gasto?"
+        itemName={itemToDelete ? `Gasto: S/ ${itemToDelete.monto.toFixed(2)} (${itemToDelete.observaciones || 'Sin detalle'})` : undefined}
+      />
     </div>
   );
 };
