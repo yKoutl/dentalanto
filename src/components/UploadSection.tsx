@@ -152,29 +152,29 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
         /* Selector o Preview */
         <div>
           {!selectedImage ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={startCamera}
-                className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-purple-200 hover:border-purple-500 hover:bg-purple-50/40 rounded-2xl transition cursor-pointer group text-center"
+                className="flex flex-col items-center justify-center p-7 bg-gradient-to-br from-purple-50 via-purple-100/60 to-fuchsia-50/50 border-2 border-dashed border-purple-300 hover:border-purple-600 hover:from-purple-100 hover:to-fuchsia-100/80 rounded-2xl transition-all duration-200 cursor-pointer group text-center shadow-xs hover:shadow-md hover:shadow-purple-600/10 active:scale-[0.99]"
               >
-                <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center mb-2.5 group-hover:scale-110 transition shadow-xs">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-700 to-indigo-600 text-white flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-md shadow-purple-600/25">
                   <Camera className="w-6 h-6" />
                 </div>
-                <span className="text-sm font-semibold text-slate-800">Tomar foto con la cámara</span>
-                <span className="text-xs text-slate-400 mt-0.5">Cámara de tu celular o tablet</span>
+                <span className="text-sm font-bold text-purple-950">Tomar foto con la cámara</span>
+                <span className="text-xs text-purple-700/80 font-medium mt-1">Cámara de tu celular o tablet</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-pink-200 hover:border-pink-500 hover:bg-pink-50/40 rounded-2xl transition cursor-pointer group text-center"
+                className="flex flex-col items-center justify-center p-7 bg-gradient-to-br from-pink-50 via-pink-100/60 to-rose-50/50 border-2 border-dashed border-pink-300 hover:border-pink-600 hover:from-pink-100 hover:to-rose-100/80 rounded-2xl transition-all duration-200 cursor-pointer group text-center shadow-xs hover:shadow-md hover:shadow-pink-600/10 active:scale-[0.99]"
               >
-                <div className="w-12 h-12 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center mb-2.5 group-hover:scale-110 transition shadow-xs">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-pink-600 to-rose-500 text-white flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-md shadow-pink-600/25">
                   <Upload className="w-6 h-6" />
                 </div>
-                <span className="text-sm font-semibold text-slate-800">Subir foto o escaneo</span>
-                <span className="text-xs text-slate-400 mt-0.5">Archivos JPG, PNG o WEBP</span>
+                <span className="text-sm font-bold text-pink-950">Subir foto o escaneo</span>
+                <span className="text-xs text-pink-700/80 font-medium mt-1">Archivos JPG, PNG o WEBP</span>
               </button>
 
               <input
