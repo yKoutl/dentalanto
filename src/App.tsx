@@ -1,11 +1,13 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Navbar } from './components/Navbar';
 import { Login } from './components/Login';
 import { UploadSection } from './components/UploadSection';
 import { AtencionesTable } from './components/AtencionesTable';
 import { GastosTable } from './components/GastosTable';
 import { CuadreCajaCard } from './components/CuadreCajaCard';
-import { AtencionItem, GastoItem, CuadreCaja } from './types';
+import { ConfirmDeleteModal } from './components/modals/ConfirmDeleteModal';
+import { ScanOptionModal } from './components/modals/ScanOptionModal';
+import { AtencionItem, GastoItem, CuadreCaja, ExtractionResponse } from './types';
 import { scanDentalNotebookImage } from './services/geminiScanner';
 import { exportToExcel, exportToPdf } from './services/exportService';
 import { SAMPLE_ATENCIONES, SAMPLE_GASTOS } from './data/sampleData';
@@ -26,6 +28,10 @@ export function App() {
   const [scanProgress, setScanProgress] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Modales de control
+  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
+  const [pendingScanResult, setPendingScanResult] = useState<ExtractionResponse | null>(null);
 
   const handleLogout = () => {
     localStorage.removeItem('chaski_dental_auth');
@@ -64,19 +70,13 @@ export function App() {
       });
 
       if (result.atenciones.length > 0 || result.gastos.length > 0) {
-        if (result.atenciones.length > 0) {
-          setAtenciones(result.atenciones);
+        // Si ya hay datos en la tabla, preguntar al usuario si desea reemplazar o sumar
+        if (atenciones.length > 0 || gastos.length > 0) {
+          setPendingScanResult(result);
+        } else {
+          // Si estaba vacía, aplicar directamente
+          applyScanResult(result, false);
         }
-        if (result.gastos.length > 0) {
-          setGastos(result.gastos);
-        }
-        if (result.totalGastosDeclarado !== undefined) {
-          setTotalGastosDeclarado(result.totalGastosDeclarado);
-        }
-        if (result.saldoCajaDeclarado !== undefined) {
-          setSaldoCajaDeclarado(result.saldoCajaDeclarado);
-        }
-        setSuccessMessage(`Se digitalizaron ${result.atenciones.length} atenciones y ${result.gastos.length} gastos correctamente.`);
       } else {
         setErrorMessage('No se pudieron leer registros claros en la foto. Intenta con una toma más iluminada o cercana.');
       }
@@ -87,6 +87,35 @@ export function App() {
       setIsScanning(false);
       setScanProgress('');
     }
+  };
+
+  const applyScanResult = (result: ExtractionResponse, append: boolean) => {
+    if (append) {
+      // Sumar / Añadir manteniendo los anteriores
+      setAtenciones((prev) => [...prev, ...result.atenciones]);
+      setGastos((prev) => [...prev, ...result.gastos]);
+      if (result.totalGastosDeclarado !== undefined) {
+        setTotalGastosDeclarado((prev) => (prev ? prev + (result.totalGastosDeclarado || 0) : result.totalGastosDeclarado));
+      }
+      setSuccessMessage(`Se agregaron ${result.atenciones.length} nuevas atenciones y ${result.gastos.length} nuevos gastos a la tabla.`);
+    } else {
+      // Reemplazar todo desde cero
+      setAtenciones(result.atenciones);
+      setGastos(result.gastos);
+      setTotalGastosDeclarado(result.totalGastosDeclarado);
+      setSaldoCajaDeclarado(result.saldoCajaDeclarado);
+      setSuccessMessage(`Se digitalizaron ${result.atenciones.length} atenciones y ${result.gastos.length} gastos correctamente.`);
+    }
+    setPendingScanResult(null);
+  };
+
+  const handleClearAll = () => {
+    setAtenciones([]);
+    setGastos([]);
+    setTotalGastosDeclarado(undefined);
+    setSaldoCajaDeclarado(undefined);
+    setIsClearModalOpen(false);
+    setSuccessMessage('Se han vaciado todas las tablas. Puedes comenzar una nueva jornada o subir una nueva foto.');
   };
 
   const handleLoadSample = () => {
@@ -107,7 +136,6 @@ export function App() {
     setSuccessMessage('Reporte PDF formal generado con éxito.');
   };
 
-  // Si no ha iniciado sesión, mostrar pantalla de bloqueo / login
   if (!isAuthenticated) {
     return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
   }
@@ -117,6 +145,7 @@ export function App() {
       <Navbar
         onExportExcel={handleExportExcel}
         onExportPdf={handleExportPdf}
+        onClearData={() => setIsClearModalOpen(true)}
         onLogout={handleLogout}
         hasData={atenciones.length > 0 || gastos.length > 0}
         totalAtenciones={atenciones.length}
@@ -237,6 +266,29 @@ export function App() {
           <CuadreCajaCard cuadre={cuadre} atenciones={atenciones} />
         )}
       </main>
+
+      {/* Modal para confirmar limpiar todo */}
+      <ConfirmDeleteModal
+        isOpen={isClearModalOpen}
+        onClose={() => setIsClearModalOpen(false)}
+        onConfirm={handleClearAll}
+        title="¿Vaciar todas las tablas para empezar de cero?"
+        message="Se eliminarán todas las atenciones y gastos registrados en la pantalla actual. Esta acción te permitirá subir una nueva jornada limpia."
+      />
+
+      {/* Modal cuando se escanea una nueva foto y ya existen datos */}
+      {pendingScanResult && (
+        <ScanOptionModal
+          isOpen={Boolean(pendingScanResult)}
+          newAtencionesCount={pendingScanResult.atenciones.length}
+          newGastosCount={pendingScanResult.gastos.length}
+          existingAtencionesCount={atenciones.length}
+          existingGastosCount={gastos.length}
+          onReplace={() => applyScanResult(pendingScanResult, false)}
+          onAppend={() => applyScanResult(pendingScanResult, true)}
+          onCancel={() => setPendingScanResult(null)}
+        />
+      )}
     </div>
   );
 }

@@ -93,7 +93,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
             {error && (
               <p className="text-xs font-semibold text-rose-600 mt-2 flex items-center gap-1.5 animate-pulse">
-                <span>⚠️ Clave incorrecta. Por favor vuelve a intentar.</span>
+                <span>Clave incorrecta. Por favor vuelve a intentar.</span>
               </p>
             )}
           </div>

@@ -71,7 +71,7 @@ export const AtencionesTable: React.FC<AtencionesTableProps> = ({ atenciones, on
         <div className="shrink-0">
           <div className="flex items-center gap-2">
             <h3 className="text-base font-bold text-slate-900 tracking-tight">
-              🦷 Registro de Pacientes y Atenciones
+              Registro de Pacientes y Atenciones
             </h3>
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-200">
               {atenciones.length} {atenciones.length === 1 ? 'registro' : 'registros'}

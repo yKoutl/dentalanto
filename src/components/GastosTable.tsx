@@ -66,7 +66,7 @@ export const GastosTable: React.FC<GastosTableProps> = ({
           <div className="flex items-center gap-2">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Receipt className="w-5 h-5 text-pink-700" />
-              <span>💸 Gastos y Egresos Diarios</span>
+              <span>Gastos y Egresos Diarios</span>
             </h3>
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-900 border border-pink-200">
               {gastos.length} {gastos.length === 1 ? 'gasto' : 'gastos'}
