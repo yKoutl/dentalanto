@@ -146,56 +146,78 @@ export function App() {
           onLoadSampleData={handleLoadSample}
         />
 
-        {/* Pestañas en Morado y Rosa */}
-        <div className="flex border-b border-purple-200/80 mb-6 gap-2 sm:gap-6 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('atenciones')}
-            className={`flex items-center gap-2 pb-3.5 px-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'atenciones'
-                ? 'border-purple-700 text-purple-900'
-                : 'border-transparent text-slate-500 hover:text-purple-700'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Atenciones y Pacientes</span>
-            <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
-              activeTab === 'atenciones' ? 'bg-purple-100 text-purple-900 border border-purple-200' : 'bg-slate-100 text-slate-600'
-            }`}>
-              {atenciones.length}
-            </span>
-          </button>
+        {/* Navegación Segmentada Estilizada en Morado y Rosa */}
+        <div className="flex items-center justify-start mb-6 overflow-x-auto pb-1">
+          <div className="inline-flex p-1.5 bg-slate-200/60 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-inner gap-1.5">
+            <button
+              onClick={() => setActiveTab('atenciones')}
+              className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                activeTab === 'atenciones'
+                  ? 'bg-white text-purple-950 shadow-sm border border-purple-100 scale-[1.01]'
+                  : 'text-slate-600 hover:text-purple-900 hover:bg-white/50'
+              }`}
+            >
+              <div className={`p-1.5 rounded-lg transition-colors ${
+                activeTab === 'atenciones' ? 'bg-purple-100 text-purple-700' : 'bg-slate-300/40 text-slate-500'
+              }`}>
+                <Users className="w-4 h-4" />
+              </div>
+              <span>Atenciones y Pacientes</span>
+              <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full transition-colors ${
+                activeTab === 'atenciones'
+                  ? 'bg-purple-700 text-white shadow-xs'
+                  : 'bg-slate-300/70 text-slate-700'
+              }`}>
+                {atenciones.length}
+              </span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('gastos')}
-            className={`flex items-center gap-2 pb-3.5 px-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'gastos'
-                ? 'border-pink-600 text-pink-900'
-                : 'border-transparent text-slate-500 hover:text-pink-600'
-            }`}
-          >
-            <Receipt className="w-4 h-4" />
-            <span>Gastos Diarios</span>
-            <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
-              activeTab === 'gastos' ? 'bg-pink-100 text-pink-900 border border-pink-200' : 'bg-slate-100 text-slate-600'
-            }`}>
-              {gastos.length}
-            </span>
-          </button>
+            <button
+              onClick={() => setActiveTab('gastos')}
+              className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                activeTab === 'gastos'
+                  ? 'bg-white text-pink-950 shadow-sm border border-pink-100 scale-[1.01]'
+                  : 'text-slate-600 hover:text-pink-900 hover:bg-white/50'
+              }`}
+            >
+              <div className={`p-1.5 rounded-lg transition-colors ${
+                activeTab === 'gastos' ? 'bg-pink-100 text-pink-700' : 'bg-slate-300/40 text-slate-500'
+              }`}>
+                <Receipt className="w-4 h-4" />
+              </div>
+              <span>Gastos Diarios</span>
+              <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full transition-colors ${
+                activeTab === 'gastos'
+                  ? 'bg-pink-600 text-white shadow-xs'
+                  : 'bg-slate-300/70 text-slate-700'
+              }`}>
+                {gastos.length}
+              </span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('cuadre')}
-            className={`flex items-center gap-2 pb-3.5 px-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'cuadre'
-                ? 'border-fuchsia-700 text-fuchsia-900'
-                : 'border-transparent text-slate-500 hover:text-fuchsia-700'
-            }`}
-          >
-            <Wallet className="w-4 h-4" />
-            <span>Cuadre de Caja</span>
-            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-900 text-white font-bold">
-              S/ {cuadre.saldoCajaEfectivo.toFixed(2)}
-            </span>
-          </button>
+            <button
+              onClick={() => setActiveTab('cuadre')}
+              className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                activeTab === 'cuadre'
+                  ? 'bg-white text-purple-950 shadow-sm border border-fuchsia-100 scale-[1.01]'
+                  : 'text-slate-600 hover:text-purple-900 hover:bg-white/50'
+              }`}
+            >
+              <div className={`p-1.5 rounded-lg transition-colors ${
+                activeTab === 'cuadre' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-slate-300/40 text-slate-500'
+              }`}>
+                <Wallet className="w-4 h-4" />
+              </div>
+              <span>Cuadre de Caja</span>
+              <span className={`text-[11px] font-extrabold px-3 py-0.5 rounded-full transition-colors ${
+                activeTab === 'cuadre'
+                  ? 'bg-gradient-to-r from-purple-800 to-pink-700 text-white shadow-xs'
+                  : 'bg-slate-300/70 text-slate-700'
+              }`}>
+                S/ {cuadre.saldoCajaEfectivo.toFixed(2)}
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Vista activa */}
