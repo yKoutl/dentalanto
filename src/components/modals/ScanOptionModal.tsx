@@ -108,3 +108,4 @@ export const ScanOptionModal: React.FC<ScanOptionModalProps> = ({
     </div>
   );
 };
+
