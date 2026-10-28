@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, ArrowRight, ClipboardList } from 'lucide-react';
 import { AnimatedLoginBackground } from './AnimatedLoginBackground';
+import { LoadingScreen } from './LoadingScreen';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -10,25 +11,33 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const expectedPassword = import.meta.env.VITE_APP_PASSWORD || '031226';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setError(false);
 
-    setTimeout(() => {
-      if (password.trim() === expectedPassword.trim()) {
+    if (password.trim() === expectedPassword.trim()) {
+      setIsLoading(true);
+      setTimeout(() => {
         localStorage.setItem('chaski_dental_auth', 'true');
         onLoginSuccess();
-      } else {
-        setError(true);
-        setIsSubmitting(false);
-      }
-    }, 200);
+      }, 700);
+    } else {
+      setError(true);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <LoadingScreen
+        message="Iniciando sesión..."
+        subtext="Accediendo a Chaski Dental"
+      />
+    );
+  }
 
   return (
     <AnimatedLoginBackground>
@@ -91,7 +100,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
           <button
             type="submit"
-            disabled={!password || isSubmitting}
+            disabled={!password || isLoading}
             className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-purple-700 via-fuchsia-600 to-pink-600 hover:from-purple-800 hover:to-pink-700 text-white font-bold text-sm shadow-xl shadow-purple-700/30 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span>Ingresar al Sistema</span>

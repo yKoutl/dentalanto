@@ -84,3 +84,4 @@ export const AnimatedLoginBackground: React.FC<AnimatedLoginBackgroundProps> = (
 };
 
 export default AnimatedLoginBackground;
+
