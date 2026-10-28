@@ -5,3 +5,9 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Ocultar el icono nativo de revelar contraseña de Edge / Chromium para evitar el doble ojo */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none !important;
+}

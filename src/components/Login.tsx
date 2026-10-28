@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, ArrowRight, ShieldCheck, ClipboardList } from 'lucide-react';
+import { Lock, Eye, EyeOff, ArrowRight, ClipboardList } from 'lucide-react';
+import { AnimatedLoginBackground } from './AnimatedLoginBackground';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -30,30 +31,24 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-pink-950 flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-      {/* Círculos decorativos de fondo */}
-      <div className="absolute top-1/4 -left-20 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-pink-600/20 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="w-full max-w-md bg-white/95 backdrop-blur-md rounded-3xl border border-purple-100/30 p-8 shadow-2xl relative z-10">
+    <AnimatedLoginBackground>
+      <div className="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-3xl border border-white/60 p-8 sm:p-10 shadow-2xl shadow-purple-950/50 relative z-10 transition-all">
+        {/* Header con Icono y Marca */}
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-700 via-fuchsia-600 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-600/30 mb-4">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-700 via-fuchsia-600 to-pink-500 flex items-center justify-center text-white shadow-xl shadow-purple-600/35 mb-4 transform hover:scale-105 transition-transform duration-300">
             <ClipboardList className="w-8 h-8" />
           </div>
 
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Chaski Dental
           </h1>
-          <p className="text-sm font-semibold text-purple-700 mt-0.5">
+          <p className="text-sm font-semibold text-purple-700 mt-1">
             Control Clínico, Atenciones y Caja
           </p>
-          <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-purple-800 text-xs font-semibold border border-purple-200/60">
-            <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-            <span>Acceso Privado</span>
-          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Formulario */}
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
               Clave de Acceso
@@ -70,8 +65,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   setPassword(e.target.value);
                   if (error) setError(false);
                 }}
-                placeholder="Ingresa la clave..."
-                className={`w-full pl-10 pr-11 py-3 text-sm rounded-xl border bg-slate-50/50 text-slate-900 font-semibold focus:outline-none focus:bg-white transition-all ${
+                placeholder="Ingresa tu clave..."
+                className={`w-full pl-10 pr-11 py-3.5 text-sm rounded-xl border bg-slate-50/70 text-black font-semibold focus:outline-none focus:bg-white transition-all shadow-inner ${
                   error
                     ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-200'
                     : 'border-purple-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-200'
@@ -81,13 +76,14 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-purple-700 transition cursor-pointer"
+                title={showPassword ? 'Ocultar clave' : 'Mostrar clave'}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
 
             {error && (
-              <p className="text-xs font-semibold text-rose-600 mt-2 flex items-center gap-1 animate-pulse">
+              <p className="text-xs font-semibold text-rose-600 mt-2 flex items-center gap-1.5 animate-pulse">
                 <span>⚠️ Clave incorrecta. Por favor vuelve a intentar.</span>
               </p>
             )}
@@ -96,19 +92,20 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <button
             type="submit"
             disabled={!password || isSubmitting}
-            className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-purple-700 via-fuchsia-600 to-pink-600 hover:from-purple-800 hover:to-pink-700 text-white font-bold text-sm shadow-lg shadow-purple-700/25 active:scale-[0.98] transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-purple-700 via-fuchsia-600 to-pink-600 hover:from-purple-800 hover:to-pink-700 text-white font-bold text-sm shadow-xl shadow-purple-700/30 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span>Ingresar al Sistema</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
+        {/* Footer sutil */}
         <div className="mt-8 pt-5 border-t border-slate-100 text-center">
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-slate-400 font-medium">
             Clínica Odontológica — Sistema de Control Diario
           </p>
         </div>
       </div>
-    </div>
+    </AnimatedLoginBackground>
   );
 };
